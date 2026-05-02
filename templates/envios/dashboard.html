@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — Encomiendas{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-12">
+        <h2 class="h3">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+        </h2>
+    </div>
+</div>
+
+
+
+
+
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-3">
+        <div class="stat-card-clean text-center">
+            <div class="stat-icon mb-3">
+                <i class="fas fa-box"></i>
+            </div>
+            <h6>ACTIVAS</h6>
+            <h2>{{ total_activas }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card-clean text-center">
+            <div class="stat-icon mb-3">
+                <i class="fas fa-truck"></i>
+            </div>
+            <h6>EN TRÁNSITO</h6>
+            <h2>{{ en_transito }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card-clean text-center">
+            <div class="stat-icon mb-3">
+                <i class="fas fa-clock"></i>
+            </div>
+            <h6>CON RETRASO</h6>
+            <h2>{{ con_retraso }}</h2>
+        </div>
+    </div>
+
+    <div class="col-md-3">
+        <div class="stat-card-clean text-center">
+            <div class="stat-icon mb-3">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h6>ENTREGADAS HOY</h6>
+            <h2>{{ entregadas_hoy }}</h2>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+
+
+<div class="card shadow">
+    <div class="card-header bg-white">
+        <h5 class="mb-0">Últimas encomiendas registradas</h5>
+    </div>
+
+    <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Remitente</th>
+                    <th>Destino</th>
+                    <th>Estado</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for enc in ultimas %}
+                    <tr>
+                        <td><code>{{ enc.codigo }}</code></td>
+                        <td>{{ enc.remitente.nombre_completo }}</td>
+                        <td>{{ enc.ruta.destino }}</td>
+                        <td>
+                            <span class="badge-estado badge-{{ enc.estado }}">
+                                {{ enc.get_estado_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="{% url 'encomienda_detalle' enc.pk %}" class="btn btn-sm btn-outline-primary">
+                                Ver
+                            </a>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-3">No hay encomiendas</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

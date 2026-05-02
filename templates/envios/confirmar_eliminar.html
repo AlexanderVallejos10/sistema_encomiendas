@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %}Eliminar encomienda{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">Eliminar encomienda</h5>
+            </div>
+
+            <div class="card-body">
+                <p>¿Seguro que deseas eliminar la encomienda?</p>
+
+                <p>
+                    <strong>Código:</strong> {{ encomienda.codigo }} <br>
+                    <strong>Remitente:</strong> {{ encomienda.remitente.nombre_completo }} <br>
+                    <strong>Destinatario:</strong> {{ encomienda.destinatario.nombre_completo }}
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    <a href="{% url 'encomienda_detalle' encomienda.pk %}" class="btn btn-outline-secondary">
+                        Cancelar
+                    </a>
+
+                    <button type="submit" class="btn btn-danger">
+                        Sí, eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

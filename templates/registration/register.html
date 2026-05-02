@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block title %}Perfil{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-dark text-white">
+            <h5>Perfil del usuario</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Usuario:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+
+            <hr>
+
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                Volver al dashboard
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

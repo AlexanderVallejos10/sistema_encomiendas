@@ -1,6 +1,8 @@
 from django.contrib import admin
-
-# Register your models here.
 from .models import Cliente
 
-admin.site.register(Cliente)
+@admin.register(Cliente)
+class ClienteAdmin(admin.ModelAdmin):
+    list_display = ('nro_doc', 'tipo_doc', 'apellidos', 'nombres', 'telefono', 'estado')
+    list_filter = ('tipo_doc', 'estado')
+    search_fields = ('nro_doc', 'apellidos', 'nombres')

@@ -1,10 +1,25 @@
 from django.db import models
-
-# Create your models here.
+from my_project.choices import EstadoGeneral
+from .querysets import RutaQuerySet
 
 class Ruta(models.Model):
+    codigo = models.CharField(max_length=10, unique=True)
     origen = models.CharField(max_length=100)
     destino = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, null=True)
+    precio_base = models.DecimalField(max_digits=10, decimal_places=2)
+    dias_entrega = models.PositiveIntegerField(default=1)
+
+    estado = models.IntegerField(
+        choices=EstadoGeneral.choices,
+        default=EstadoGeneral.ACTIVO
+    )
+
+    objects = RutaQuerySet.as_manager()
 
     def __str__(self):
-        return f"{self.origen} - {self.destino}"
+        return f'{self.codigo}: {self.origen} → {self.destino}'
+
+    class Meta:
+        db_table = 'rutas'
+        ordering = ['origen', 'destino']
