@@ -112,6 +112,7 @@ def encomienda_crear(request):
         'titulo': 'Nueva Encomienda',
     })
 
+
 @require_POST
 @login_required
 def encomienda_cambiar_estado(request, pk):
@@ -170,3 +171,7 @@ def encomienda_eliminar(request, pk):
     return render(request, 'envios/confirmar_eliminar.html', {
         'encomienda': encomienda,
     })
+
+
+
+

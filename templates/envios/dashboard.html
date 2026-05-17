@@ -3,71 +3,89 @@
 {% block title %}Dashboard — Encomiendas{% endblock %}
 
 {% block content %}
+
 <div class="row mb-4">
-    <div class="col-12">
-        <h2 class="h3">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2 class="h3 mb-0">
             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
         </h2>
+
+        <span id="ws-status" class="badge bg-secondary">
+            Conectando...
+        </span>
     </div>
 </div>
-
-
-
-
-
 
 <div class="row g-4 mb-4">
 
+    <!-- ACTIVAS -->
     <div class="col-md-3">
-        <div class="stat-card-clean text-center">
+        <div class="stat-card-clean text-center shadow-sm">
             <div class="stat-icon mb-3">
                 <i class="fas fa-box"></i>
             </div>
+
             <h6>ACTIVAS</h6>
-            <h2>{{ total_activas }}</h2>
+
+            <h2 id="stat-activas">
+                {{ total_activas }}
+            </h2>
         </div>
     </div>
 
+    <!-- EN TRANSITO -->
     <div class="col-md-3">
-        <div class="stat-card-clean text-center">
+        <div class="stat-card-clean text-center shadow-sm">
             <div class="stat-icon mb-3">
                 <i class="fas fa-truck"></i>
             </div>
+
             <h6>EN TRÁNSITO</h6>
-            <h2>{{ en_transito }}</h2>
+
+            <h2 id="stat-en-transito">
+                {{ en_transito }}
+            </h2>
         </div>
     </div>
 
+    <!-- CON RETRASO -->
     <div class="col-md-3">
-        <div class="stat-card-clean text-center">
+        <div class="stat-card-clean text-center shadow-sm">
             <div class="stat-icon mb-3">
                 <i class="fas fa-clock"></i>
             </div>
+
             <h6>CON RETRASO</h6>
-            <h2>{{ con_retraso }}</h2>
+
+            <h2 id="stat-retraso">
+                {{ con_retraso }}
+            </h2>
         </div>
     </div>
 
+    <!-- ENTREGADAS -->
     <div class="col-md-3">
-        <div class="stat-card-clean text-center">
+        <div class="stat-card-clean text-center shadow-sm">
             <div class="stat-icon mb-3">
                 <i class="fas fa-check-circle"></i>
             </div>
+
             <h6>ENTREGADAS HOY</h6>
-            <h2>{{ entregadas_hoy }}</h2>
+
+            <h2 id="stat-entregadas">
+                {{ entregadas_hoy }}
+            </h2>
         </div>
     </div>
 
 </div>
 
-
-
-
-
-
+<!-- TABLA -->
 <div class="card shadow">
     <div class="card-header bg-white">
-        <h5 class="mb-0">Últimas encomiendas registradas</h5>
+        <h5 class="mb-0">
+            Últimas encomiendas registradas
+        </h5>
     </div>
 
     <div class="card-body p-0">
@@ -81,30 +99,231 @@
                     <th></th>
                 </tr>
             </thead>
+
             <tbody>
                 {% for enc in ultimas %}
-                    <tr>
-                        <td><code>{{ enc.codigo }}</code></td>
-                        <td>{{ enc.remitente.nombre_completo }}</td>
-                        <td>{{ enc.ruta.destino }}</td>
-                        <td>
-                            <span class="badge-estado badge-{{ enc.estado }}">
-                                {{ enc.get_estado_display }}
-                            </span>
-                        </td>
-                        <td>
-                            <a href="{% url 'encomienda_detalle' enc.pk %}" class="btn btn-sm btn-outline-primary">
-                                Ver
-                            </a>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>
+                        <code>{{ enc.codigo }}</code>
+                    </td>
+
+                    <td>
+                        {{ enc.remitente.nombre_completo }}
+                    </td>
+
+                    <td>
+                        {{ enc.ruta.destino }}
+                    </td>
+
+                    <td>
+                        <span class="badge-estado badge-{{ enc.estado }}">
+                            {{ enc.get_estado_display }}
+                        </span>
+                    </td>
+
+                    <td>
+                        <a href="{% url 'encomienda_detalle' enc.pk %}"
+                           class="btn btn-sm btn-outline-primary">
+                            Ver
+                        </a>
+                    </td>
+                </tr>
                 {% empty %}
-                    <tr>
-                        <td colspan="5" class="text-center py-3">No hay encomiendas</td>
-                    </tr>
+                <tr>
+                    <td colspan="5" class="text-center py-3">
+                        No hay encomiendas
+                    </td>
+                </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<!-- TOAST -->
+<div id="toast-container"
+     style="
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        z-index: 9999;
+     ">
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+
+let ws = null;
+
+// ----------------------------
+// Conectar WebSocket
+// ----------------------------
+function conectarWebSocket() {
+
+    const protocol =
+        window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+
+    const wsUrl =
+        protocol + window.location.host + '/ws/dashboard/';
+
+    ws = new WebSocket(wsUrl);
+
+    // ----------------------------
+    // OPEN
+    // ----------------------------
+    ws.onopen = function () {
+
+        console.log('Conectado al dashboard');
+
+        const badge =
+            document.getElementById('ws-status');
+
+        badge.innerText = 'EN VIVO';
+        badge.className = 'badge bg-success';
+    };
+
+    // ----------------------------
+    // MENSAJES
+    // ----------------------------
+    ws.onmessage = function (event) {
+
+        const data = JSON.parse(event.data);
+
+        console.log('Mensaje recibido:', data);
+
+        // actualizar estadísticas
+        if (
+            data.tipo === 'stats_iniciales' ||
+            data.tipo === 'stats_actualizado'
+        ) {
+
+            actualizarContador(
+                'stat-activas',
+                data.stats.activas
+            );
+
+            actualizarContador(
+                'stat-en-transito',
+                data.stats.en_transito
+            );
+
+            actualizarContador(
+                'stat-retraso',
+                data.stats.con_retraso
+            );
+
+            actualizarContador(
+                'stat-entregadas',
+                data.stats.entregadas_hoy
+            );
+        }
+
+        // cambio de estado
+        if (data.tipo === 'estado_cambio') {
+            mostrarToast(data);
+        }
+    };
+
+    // ----------------------------
+    // CLOSE
+    // ----------------------------
+    ws.onclose = function (event) {
+
+        console.log('Cerrado:', event.code);
+
+        const badge =
+            document.getElementById('ws-status');
+
+        badge.innerText = 'Desconectado';
+        badge.className = 'badge bg-danger';
+
+        // reconectar
+        setTimeout(() => {
+            console.log('Reconectando...');
+            conectarWebSocket();
+        }, 3000);
+    };
+
+    // ----------------------------
+    // ERROR
+    // ----------------------------
+    ws.onerror = function (e) {
+        console.error('Error WS:', e);
+    };
+}
+
+// ----------------------------
+// Animación de contador
+// ----------------------------
+function actualizarContador(id, valor) {
+
+    const el =
+        document.getElementById(id);
+
+    if (!el) return;
+
+    const anterior =
+        parseInt(el.innerText) || 0;
+
+    if (anterior === valor) return;
+
+    el.style.transition =
+        'transform 0.2s ease';
+
+    el.style.transform =
+        'scale(1.2)';
+
+    el.innerText = valor;
+
+    setTimeout(() => {
+        el.style.transform = 'scale(1)';
+    }, 250);
+}
+
+// ----------------------------
+// Toast
+// ----------------------------
+function mostrarToast(data) {
+
+    const container =
+        document.getElementById('toast-container');
+
+    const toast =
+        document.createElement('div');
+
+    toast.className =
+        'alert alert-success shadow fade show mb-2';
+
+    toast.style.minWidth = '320px';
+
+    toast.innerHTML = `
+        <strong>${data.codigo}</strong><br>
+        Estado:
+        ${data.estado_anterior}
+        →
+        ${data.estado_nuevo}<br>
+
+        <small>
+            ${data.empleado}
+        </small>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.remove();
+    }, 5000);
+}
+
+// ----------------------------
+// Iniciar
+// ----------------------------
+document.addEventListener(
+    'DOMContentLoaded',
+    conectarWebSocket
+);
+
+</script>
 {% endblock %}

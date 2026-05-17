@@ -15,7 +15,7 @@
 
 <form method="get" class="row g-2 mb-3">
     <div class="col-md-6">
-        <input type="text" name="q" value="{{ request.GET.q }}" class="form-control"
+        <input type="text" name="q" value="{{ q }}" class="form-control"
                placeholder="Buscar por código o cliente...">
     </div>
 
@@ -31,7 +31,9 @@
     </div>
 
     <div class="col-md-2">
-        <button type="submit" class="btn btn-outline-primary w-100">Filtrar</button>
+        <button type="submit" class="btn btn-outline-primary w-100">
+            Filtrar
+        </button>
     </div>
 </form>
 
@@ -69,7 +71,9 @@
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="6" class="text-center py-4">No se encontraron encomiendas</td>
+                        <td colspan="6" class="text-center py-4">
+                            No se encontraron encomiendas
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -78,33 +82,7 @@
 
     {% if encomiendas.has_other_pages %}
         <div class="card-footer bg-white">
-            <nav>
-                <ul class="pagination justify-content-center mb-0">
-                    {% if encomiendas.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ encomiendas.previous_page_number }}&q={{ request.GET.q }}&estado={{ request.GET.estado }}">
-                                &laquo; Anterior
-                            </a>
-                        </li>
-                    {% endif %}
-
-                    {% for num in encomiendas.paginator.page_range %}
-                        <li class="page-item {% if encomiendas.number == num %}active{% endif %}">
-                            <a class="page-link" href="?page={{ num }}&q={{ request.GET.q }}&estado={{ request.GET.estado }}">
-                                {{ num }}
-                            </a>
-                        </li>
-                    {% endfor %}
-
-                    {% if encomiendas.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ encomiendas.next_page_number }}&q={{ request.GET.q }}&estado={{ request.GET.estado }}">
-                                Siguiente &raquo;
-                            </a>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
+            {% include 'partials/paginacion.html' with page_obj=encomiendas %}
         </div>
     {% endif %}
 </div>

@@ -29,9 +29,18 @@ class EncomiendaForm(forms.ModelForm):
                 'min': '0.01',
                 'required': True
             }),
-            'remitente': forms.Select(attrs={'class': 'form-select', 'required': True}),
-            'destinatario': forms.Select(attrs={'class': 'form-select', 'required': True}),
-            'ruta': forms.Select(attrs={'class': 'form-select', 'required': True}),
+            'remitente': forms.Select(attrs={
+                'class': 'form-select',
+                'required': True
+            }),
+            'destinatario': forms.Select(attrs={
+                'class': 'form-select',
+                'required': True
+            }),
+            'ruta': forms.Select(attrs={
+                'class': 'form-select',
+                'required': True
+            }),
             'fecha_entrega_est': forms.DateInput(attrs={
                 'class': 'form-control',
                 'type': 'date'
@@ -44,9 +53,11 @@ class EncomiendaForm(forms.ModelForm):
         self.fields['remitente'].queryset = Cliente.objects.filter(
             estado=EstadoGeneral.ACTIVO
         )
+
         self.fields['destinatario'].queryset = Cliente.objects.filter(
             estado=EstadoGeneral.ACTIVO
         )
+
         self.fields['ruta'].queryset = Ruta.objects.filter(
             estado=EstadoGeneral.ACTIVO
         )

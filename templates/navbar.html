@@ -24,8 +24,13 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link" href="{% url 'encomienda_lista' %}">
-                        <i class="fas fa-boxes me-1"></i>Encomiendas
+                    <a href="{% url 'encomienda_lista' %}" class="sidebar-link">
+                        <i class="fas fa-boxes"></i>
+                        <span>Encomiendas</span>
+
+                        {% if nav_retraso > 0 %}
+                            <span class="badge bg-danger ms-auto">{{ nav_retraso }}</span>
+                        {% endif %}
                     </a>
                 </li>
 
